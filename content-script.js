@@ -1,4 +1,4 @@
-let TOGGLE;
+let creativeButton, balancedButton, preciseButton;
 
 async function getJSONs() {
     let darkModeUrl = chrome.runtime.getURL("dark-mode-css-properties.json");
@@ -101,33 +101,18 @@ const addThemeToggle = () => {
 
 async function toggleTheme(theme) {
     let [darkMode, lightMode] = await getJSONs();
-    if (theme === "dark") {
-        let root = document.querySelector(":root");
-        let styles = getComputedStyle(document.documentElement);
+    let themeObject = theme === "dark" ? darkMode : lightMode;
+    let root = document.querySelector(":root");
+    let styles = getComputedStyle(document.documentElement);
 
-        for (let key of Object.keys(darkMode)) {
-            if (styles.getPropertyValue(key)) {
-                root.style.setProperty(key, darkMode[key]);
-            }
+    for (let key of Object.keys(themeObject)) {
+        if (styles.getPropertyValue(key)) {
+            root.style.setProperty(key, themeObject[key]);
         }
-        chrome.storage.local.set({ theme: "dark" });
-        changeScrollbarColor("#141414", "#555555");
-    } else {
-        let root = document.querySelector(":root");
-        let styles = getComputedStyle(document.documentElement);
-
-        for (let key of Object.keys(lightMode)) {
-            if (styles.getPropertyValue(key)) {
-                root.style.setProperty(key, lightMode[key]);
-            }
-        }
-        chrome.storage.local.set({ theme: "light" });
-        changeScrollbarColor("#F7F7F7", "#555555");
     }
-}
+    root.style.setProperty("color-scheme", theme === "dark" ? "dark" : "light");
 
-function changeScrollbarColor(track, thumb) {
-    document.body.style.scrollbarTrackColor = track;
+    chrome.storage.local.set({ theme: theme });
 }
 
 async function setThemeOnOpen() {
@@ -143,12 +128,61 @@ function removeBackgroundTextureNoSearch() {
         .style.setProperty("--cib-no-bing-result-texture", "");
 }
 
+async function rememberLastPickedConversationStyle() {
+    findTheButtons();
+    let { lastPickedStyle } = await chrome.storage.local.get("lastPickedStyle");
+    switch (lastPickedStyle) {
+        case "creative":
+            if (creativeButton) creativeButton.click();
+            break;
+        case "balanced":
+            if (balancedButton) balancedButton.click();
+            break;
+        case "precise":
+            if (preciseButton) preciseButton.click();
+            break;
+    }
+}
+
+function findTheButtons() {
+    const traverseShadowDOM = (element) => {
+        if (element && element.shadowRoot) {
+            const nestedElement = element.shadowRoot.querySelectorAll(
+                "ul#tone-options.options li button"
+            );
+
+            if (nestedElement.length === 3) {
+                creativeButton = nestedElement[0];
+                nestedElement[0].addEventListener("click", () => {
+                    chrome.storage.local.set({ lastPickedStyle: "creative" });
+                });
+
+                balancedButton = nestedElement[1];
+                nestedElement[1].addEventListener("click", () => {
+                    chrome.storage.local.set({ lastPickedStyle: "balanced" });
+                });
+
+                preciseButton = nestedElement[2];
+                nestedElement[2].addEventListener("click", () => {
+                    chrome.storage.local.set({ lastPickedStyle: "precise" });
+                });
+            } else {
+                const childElements = element.shadowRoot.querySelectorAll("*");
+                for (let child of childElements) {
+                    traverseShadowDOM(child);
+                }
+            }
+        }
+    };
+    const rootElement = document.querySelector("cib-serp");
+    traverseShadowDOM(rootElement);
+}
+
 setTimeout(() => {
     setInterval(removeDisclaimersAtEndNoSearch, 500);
     setInterval(removeDisclaimersAtBeginningNoSearch, 500);
     removeBackgroundTextureNoSearch();
     addThemeToggle();
     setThemeOnOpen();
+    rememberLastPickedConversationStyle();
 }, 500);
-
-// const darkModeString =
