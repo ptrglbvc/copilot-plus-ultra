@@ -24,6 +24,10 @@ function findTheMainChatElement() {
     traverseShadowDOM(rootElement);
 }
 
+function removeGetTheAppIcon() {
+    document.querySelector("#copilot_app_cta")?.remove();
+}
+
 function addMutationObserver(node) {
     let mutationObserver = new MutationObserver(changeMessages);
     mutationObserver.observe(node, { childList: true });
@@ -225,6 +229,7 @@ function findTheButtons() {
 setTimeout(() => {
     // setInterval(removeDisclaimersAtEndNoSearch, 500);
     // setInterval(removeDisclaimersAtBeginningNoSearch, 500);
+    removeGetTheAppIcon();
     findTheMainChatElement();
     removeBackgroundTextureNoSearch();
     addThemeToggle();
