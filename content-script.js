@@ -1,4 +1,47 @@
 let creativeButton, balancedButton, preciseButton;
+let mainChatElement;
+//.main#cib-chat-main
+
+function findTheMainChatElement() {
+    const traverseShadowDOM = (element) => {
+        if (element && element.shadowRoot) {
+            const nestedElement = element.shadowRoot.querySelector(
+                ".main#cib-chat-main"
+            );
+
+            if (nestedElement) {
+                mainChatElement = nestedElement;
+                addMutationObserver(mainChatElement);
+            } else {
+                const childElements = element.shadowRoot.querySelectorAll("*");
+                for (let child of childElements) {
+                    traverseShadowDOM(child);
+                }
+            }
+        }
+    };
+    const rootElement = document.querySelector("cib-serp");
+    traverseShadowDOM(rootElement);
+}
+
+function addMutationObserver(node) {
+    let mutationObserver = new MutationObserver(changeMessages);
+    mutationObserver.observe(node, { childList: true });
+}
+
+function changeMessages(records) {
+    for (let record of records) {
+        for (let node of record.addedNodes) {
+            console.log(node.localName);
+            if (node.localName === "cib-chat-turn") {
+                setInterval(() => {
+                    removeDisclaimersAtEndNoSearch(node);
+                    removeDisclaimersAtBeginningNoSearch(node);
+                }, 200);
+            }
+        }
+    }
+}
 
 async function getJSONs() {
     let darkModeUrl = chrome.runtime.getURL("dark-mode-css-properties.json");
@@ -12,9 +55,10 @@ async function getJSONs() {
     return [dark, light];
 }
 
-const removeDisclaimersAtEndNoSearch = () => {
+const removeDisclaimersAtEndNoSearch = (searchStart) => {
     const traverseShadowDOM = (element) => {
         if (element && element.shadowRoot) {
+            console.log(element.localName);
             const nestedElement = element.shadowRoot.querySelector(
                 "cib-message-attributions"
             );
@@ -30,11 +74,11 @@ const removeDisclaimersAtEndNoSearch = () => {
         }
     };
 
-    const rootElement = document.querySelector("cib-serp");
-    traverseShadowDOM(rootElement);
+    // const rootElement = document.querySelector("cib-serp");
+    traverseShadowDOM(searchStart);
 };
 
-const removeDisclaimersAtBeginningNoSearch = () => {
+const removeDisclaimersAtBeginningNoSearch = (searchStart) => {
     const traverseShadowDOM = (element) => {
         if (element && element.shadowRoot) {
             const nestedElement =
@@ -54,8 +98,8 @@ const removeDisclaimersAtBeginningNoSearch = () => {
         }
     };
 
-    const rootElement = document.querySelector("cib-serp");
-    traverseShadowDOM(rootElement);
+    // const rootElement = document.querySelector("cib-serp");
+    traverseShadowDOM(searchStart);
 };
 
 const addThemeToggle = () => {
@@ -179,8 +223,9 @@ function findTheButtons() {
 }
 
 setTimeout(() => {
-    setInterval(removeDisclaimersAtEndNoSearch, 500);
-    setInterval(removeDisclaimersAtBeginningNoSearch, 500);
+    // setInterval(removeDisclaimersAtEndNoSearch, 500);
+    // setInterval(removeDisclaimersAtBeginningNoSearch, 500);
+    findTheMainChatElement();
     removeBackgroundTextureNoSearch();
     addThemeToggle();
     setThemeOnOpen();
