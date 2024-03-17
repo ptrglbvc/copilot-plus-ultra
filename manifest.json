@@ -3,10 +3,23 @@
     "name": "Copilot+",
     "description": "Changes a couple of things about the copilot.microsoft.com. Including adding a dark mode toggle, removing the annoying 'browsing is disabled' messages on every fucking message, and turning off browsing by default.",
     "version": "0.1",
+    "permissions": ["storage"],
     "content_scripts": [
         {
             "js": ["content-script.js"],
             "matches": ["https://copilot.microsoft.com/*"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["dark-mode-css-properties.json"],
+            "matches": ["https://copilot.microsoft.com/*"],
+            "extension_ids": []
+        },
+        {
+            "resources": ["light-mode-css-properties.json"],
+            "matches": ["https://copilot.microsoft.com/*"],
+            "extension_ids": []
         }
     ]
 }
