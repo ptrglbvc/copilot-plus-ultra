@@ -10,18 +10,10 @@ Copilot+ is a browser extension that enhances the user experience of the Microso
 
 ## Installation
 
-### For Normies
-
-1. Visit the [Chrome Web Store](https://chrome.google.com/webstore/category/extensions) and search for "Copilot+".
-2. Click "Add to Chrome" to install the extension. Every chromium based browser should support it.
-
-### For Nerds
-
-1. Download the latest release of Copilot+ from the [releases page](https://github.com/yourusername/copilotplus/releases).
-2. Extract the ZIP file.
-3. Open Google Chrome and navigate to `chrome://extensions`.
-4. Enable "Developer mode" in the top right corner.
-5. Click "Load unpacked" and select the extracted folder containing the extension files.
+1. Git clone this repo.
+2. Open Google Chrome and navigate to `chrome://extensions`.
+3. Enable "Developer mode" in the top right corner.
+4. Click "Load unpacked" and select the extracted folder containing the extension files.
 
 ## Usage
 
